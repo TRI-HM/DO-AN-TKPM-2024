@@ -1,5 +1,5 @@
 MEMBER
-1. Lâm Trọng Nghia
+1. Lâm Trọng Nghĩa
 2. Huỳnh Minh Trí
 3. Quốc
 4. Hiếu
