@@ -7,7 +7,7 @@ const router = express.Router();
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'Admin123',
+  password: 'password',
   database: 'db_tkpm',
   port: 3309
 });
