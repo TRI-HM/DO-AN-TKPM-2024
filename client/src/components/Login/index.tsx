@@ -1,21 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
-
-interface User {
-  username: string;
-  password: string;
-}
+import { useAuth } from "../../providers/AuthContext";
+import { Navigate } from "react-router-dom";
 
 const LoginSignupForm: React.FC = () => {
-  const navigation = useNavigate();
-  const [loginUsername, setLoginUsername] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
+  const [loginUsername, setLoginUsername] = useState("user");
+  const [loginPassword, setLoginPassword] = useState("password");
+  const { login, state } = useAuth();
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (state?.isAuthenticated) {
+      console.log("User is authenticated", state);
+    }
+  }, [state]);
+
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigation("/app-chat");
+    await login(loginUsername, loginUsername);
   };
+
+  const _handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLoginUsername(e.target.value);
+  };
+
+  const _handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLoginPassword(e.target.value);
+  };
+
+  if (state.isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <Container
@@ -32,7 +46,7 @@ const LoginSignupForm: React.FC = () => {
                 type="text"
                 placeholder="Enter username"
                 value={loginUsername}
-                onChange={(e) => setLoginUsername(e.target.value)}
+                onChange={_handleUsernameChange}
               />
             </Form.Group>
             <Form.Group controlId="loginPassword">
@@ -41,7 +55,7 @@ const LoginSignupForm: React.FC = () => {
                 type="password"
                 placeholder="Password"
                 value={loginPassword}
-                onChange={(e) => setLoginPassword(e.target.value)}
+                onChange={_handleChangePassword}
               />
             </Form.Group>
             <Button variant="primary" type="submit">
