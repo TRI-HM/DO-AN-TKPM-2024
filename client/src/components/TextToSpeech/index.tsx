@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { textToSpeech } from "../../services/chat";
+import { textToSpeech } from "../../services/openapi";
 import { TextToSpeechProps } from "../../types/Chat";
 
 const TextToSpeech: React.FC<TextToSpeechProps> = ({ formText }) => {

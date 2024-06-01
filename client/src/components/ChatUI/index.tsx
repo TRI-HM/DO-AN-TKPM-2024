@@ -5,7 +5,7 @@ import TextSelector from "../TextSelector";
 
 import { useAuth } from "../../providers/AuthContext";
 import { ChatProps, Message } from "../../types/Chat";
-import { generateConversation } from "../../services/chat";
+import { generateConversation } from "../../services/openapi";
 
 const Chat: React.FC<ChatProps> = () => {
   const { state } = useAuth();

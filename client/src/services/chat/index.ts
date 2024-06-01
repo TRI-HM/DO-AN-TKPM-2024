@@ -1,67 +1,68 @@
-import axios from "axios";
-import { apiCaller, apiCallerBlob } from "../../apis/apiCaller";
+import { apiCaller } from "../../apis/apiCaller";
 
-const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
+const BASE_URL = process.env.REACT_APP_SERVER_BASE_URL;
 
-export const generateConversation = async (prompt: string): Promise<string> => {
+export const saveconversation = async (prompt: string): Promise<string> => {
   try {
-    const response = await apiCaller(
-      "https://api.openai.com/v1/completions",
-      "POST",
-      {
-        model: "text-davinci-003", // Adjust model as needed
-        prompt: `You: ${prompt}`,
-        max_tokens: 1024, // Adjust maximum response length
-        n: 1,
-        stop: null,
-        temperature: 0.7, // Adjust temperature for response creativity
-      }
-    );
-    return response.data.choices[0].text.trim();
+    return await apiCaller(`${BASE_URL}/history`, "POST", {});
   } catch (error) {
-    console.error("Error generating conversation:", error);
-    return "Sorry, an error occurred while generating the conversation.";
+    console.error("Error saveconversation:", error);
+    return "Sorry, an error occurred while saveconversation.";
   }
 };
 
-export const textToSpeech = async (prompt: string): Promise<any> => {
+export const getHistories = async (uuid: string): Promise<any> => {
   try {
-    const response = await apiCallerBlob(
-      "https://api.openai.com/v1/audio/speech",
-      "POST",
-      {
-        model: "tts-1", // Adjust model if needed
-        input: prompt,
-        voice: "alloy", // Adjust voice if needed
-      }
-    );
+    return await apiCaller(`${BASE_URL}/history/${uuid}`, "GET", {});
+  } catch (error) {
+    console.error("Error getHistories:", error);
+    return "Sorry, an error occurred while getHistories.";
+  }
+};
 
-    debugger;
-    // const blobUrl = URL.createObjectURL(response.data);
+export const saveHistories = async (user_uuid: string): Promise<any> => {
+  try {
+    return await apiCaller(`${BASE_URL}/history/save`, "POST", {
+      user_uuid: user_uuid,
+    });
+  } catch (error) {
+    console.error("Error saveHistories:", error);
+    return "Sorry, an error occurred while saveHistories.";
+  }
+};
+
+export const getLogs = async (prompt: string): Promise<string> => {
+  try {
+    return await apiCaller(`${BASE_URL}/history`, "GET", {});
+  } catch (error) {
+    console.error("Error getLogs:", error);
+    return "Sorry, an error occurred while getLogs";
+  }
+};
+
+export const getLog = async (uuid: string): Promise<string> => {
+  try {
+    return await apiCaller(`${BASE_URL}/log/${uuid}`, "GET", {});
+  } catch (error) {
+    console.error("Error getLog:", error);
+    return "Sorry, an error occurred while get Log.";
+  }
+};
+
+export const saveLog = async ({
+  number_sentence,
+  sentences,
+  history_uuid,
+}: any): Promise<string> => {
+  try {
+    const response = apiCaller(`${BASE_URL}/history`, "POST", {
+      number_sentence: number_sentence,
+      sentences: sentences,
+      history_uuid: history_uuid,
+    });
     return response;
   } catch (error) {
-    console.error("Error generating conversation:", error);
-    return "Sorry, an error occurred while generating textToSpeech.";
-  }
-};
-
-export const speechToText = async (prompt: string): Promise<string> => {
-  try {
-    const response = await axios.post(
-      "https://api.openai.com/v1/engines/davinci-codex/completions",
-      {
-        prompt,
-        max_tokens: 150,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-        },
-      }
-    );
-    return response.data.choices[0].text.trim();
-  } catch (error) {
-    console.error("Error generating conversation:", error);
-    return "Sorry, an error occurred while generating the conversation.";
+    console.error("Error saveLog:", error);
+    return "Sorry, an error occurred while saveLog.";
   }
 };

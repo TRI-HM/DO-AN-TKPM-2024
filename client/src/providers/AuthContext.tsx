@@ -6,8 +6,15 @@ import React, {
   useEffect,
 } from "react";
 
+import {
+  register as serviceRegister,
+  login as serviceLogin,
+} from "../services/authentication";
+
 interface User {
   username: string;
+  password: string;
+  uuid: string;
 }
 
 interface AuthState {
@@ -17,6 +24,7 @@ interface AuthState {
 
 type Action =
   | { type: "LOGIN_SUCCESS"; payload: User }
+  | { type: "REGISTER_SUCCESS"; payload: User }
   | { type: "LOGIN_FAILURE" }
   | { type: "LOGOUT" };
 
@@ -28,6 +36,11 @@ const initialState: AuthState = {
 const authReducer = (state: AuthState, action: Action): AuthState => {
   switch (action.type) {
     case "LOGIN_SUCCESS":
+      return {
+        isAuthenticated: true,
+        user: action.payload,
+      };
+    case "REGISTER_SUCCESS":
       return {
         isAuthenticated: true,
         user: action.payload,
@@ -48,21 +61,11 @@ const AuthContext = createContext<
       state: AuthState;
       dispatch: React.Dispatch<Action>;
       login: (username: string, password: string) => Promise<void>;
+      register: (username: string, password: string) => Promise<void>;
       logout: () => void;
     }
   | undefined
 >(undefined);
-
-const mockLoginService = (
-  username: string,
-  password: string
-): Promise<User> => {
-  return new Promise((resolve, _) => {
-    setTimeout(() => {
-      resolve({ username });
-    }, 1000);
-  });
-};
 
 const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
@@ -77,8 +80,20 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   const login = async (username: string, password: string) => {
     try {
-      const loggedInUser = await mockLoginService(username, password);
+      const loggedInUser: any = await serviceLogin(username, password);
       dispatch({ type: "LOGIN_SUCCESS", payload: loggedInUser });
+      localStorage.setItem("user", JSON.stringify(loggedInUser));
+    } catch (error) {
+      console.error("Login failed:", error);
+      dispatch({ type: "LOGIN_FAILURE" });
+      localStorage.removeItem("user");
+    }
+  };
+
+  const register = async (username: string, password: string) => {
+    try {
+      const loggedInUser: any = await serviceRegister(username, password);
+      dispatch({ type: "REGISTER_SUCCESS", payload: loggedInUser });
       localStorage.setItem("user", JSON.stringify(loggedInUser));
     } catch (error) {
       console.error("Login failed:", error);
@@ -93,7 +108,7 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ state, dispatch, login, logout }}>
+    <AuthContext.Provider value={{ state, dispatch, login, logout, register }}>
       {children}
     </AuthContext.Provider>
   );

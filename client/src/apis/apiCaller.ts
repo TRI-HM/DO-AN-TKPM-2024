@@ -1,4 +1,4 @@
-const apiCaller = async (url: string, method: string, data: any) => {
+const apiCaller = async (url: string, method: string, data: any | null) => {
   try {
     const response = await fetch(url, {
       method,

@@ -5,11 +5,11 @@ import { v4 as uuidv4 } from "uuid";
 const router = express.Router();
 
 const connection = mysql.createConnection({
-  host: 'localhost',
+  host: process.env.MYSQL_HOST || 'localhost',
   user: 'root',
   password: 'password',
   database: 'db_tkpm',
-  port: 3309
+  port: 3306
 });
 
 //init tables
