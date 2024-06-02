@@ -7,9 +7,15 @@ const router = express.Router();
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'password',
+  password: 'Admin123',
   database: 'db_tkpm',
   port: 3309
+});
+
+//init database
+const sqlInitDatabase = `CREATE DATABASE IF NOT EXISTS db_tkpm;`;
+connection.query(sqlInitDatabase, (err, results) => {
+  if (err) throw err;
 });
 
 //init tables
