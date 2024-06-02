@@ -1,5 +1,5 @@
 import { BrowserRouter } from "react-router-dom";
-import { Route, Outlet, Routes } from "react-router-dom";
+import { Route, Outlet, Routes} from "react-router-dom";
 
 import Login from "../components/Login";
 import ChatGPTInterface from "../components/ChatUI";
@@ -16,11 +16,11 @@ const AppRoutes = () => {
           element={
             <Container className="vh-100 px-0" fluid={true}>
               <Header />
-              <Row>
+              {/* <Row>
                 <Col sm={3} style={{ padding: 20 }}>
-                  <Nav className="flex flex-column">
+                  <Nav className="flex flex-column"> */}
                     {/* Navigation links (created later) */}
-                    <NavItem>
+                    {/* <NavItem>src/routes/index.tsx
                       <Nav.Link href="/">Home</Nav.Link>
                     </NavItem>
                     <NavItem>
@@ -29,17 +29,18 @@ const AppRoutes = () => {
                     <NavItem>
                       <Nav.Link href="/app-chat">App Chat</Nav.Link>
                     </NavItem>
-                  </Nav>
-                </Col>
-                <Col sx={9} md={9}>
+                  </Nav> */}
+                {/* </Col>
+                <Col sx={9} md={9}> */}
                   <Outlet />
-                </Col>
-              </Row>
+                {/* </Col> */}
+              {/* </Row> */}
             </Container>
           }
         >
-          <Route path="/" element={<h2>Home</h2>} />
-          <Route path="/login" Component={Login} />
+          {/* <Route path="/" element={<h2>Home</h2>} /> */}
+          <Route path="/" Component={Login} />
+          <Route path="/app-chat" Component={ChatGPTInterface} />
           <Route path="/app-chat" Component={ChatGPTInterface} />
         </Route>
       </Routes>

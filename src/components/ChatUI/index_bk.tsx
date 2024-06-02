@@ -61,6 +61,8 @@ const ChatGPTInterface: React.FC = () => {
     sendMessage();
   };
 
+  
+
   return (
     <Container className="chat-container">
       <Row className="justify-content-md-center">
