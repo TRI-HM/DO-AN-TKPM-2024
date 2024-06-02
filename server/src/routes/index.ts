@@ -1,17 +1,17 @@
 import express from "express";
 import mysql from 'mysql2';
 import { v4 as uuidv4 } from "uuid";
+import { config } from 'dotenv';
 
 const router = express.Router();
+config();
 
 const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'password',
-  port: 3309
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  port: Number(process.env.DB_PORT),
 });
-
-
 
 //init tables
 const sqlInitTables = [
