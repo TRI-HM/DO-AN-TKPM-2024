@@ -1,0 +1,190 @@
+.App {
+    min-height: 94.1vh;
+    display: flex;
+    background: rgb(3, 0, 31);
+    color: white;
+}
+
+.sidebar {
+    flex: 3;
+    border-right: 1px solid rgb(100, 100, 100);
+}
+
+.top {
+    padding: 2.5rem;
+    border-bottom: 1px solid rgb(100, 100, 100);
+    height: 70%;
+}
+
+.bottom {
+    padding: 2rem;
+}
+
+.logout {
+    padding: 5px;
+    margin: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+.logout button {
+    margin: 5px;
+    font-size: 25px;
+    gap: 10px;
+    padding: 3px;
+    background: transparent;
+    border: none;
+    color: white;
+}
+
+.titleSideBar {
+    padding: 10px;
+    color: white;
+}
+
+.titleSideBar h1 {
+    padding: 5px;
+    border-bottom: 1px solid rgb(100, 100, 100);
+}
+
+.newChat {
+    margin: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0px 10px;
+    background-color: rgb(59, 46, 252);
+    border-radius: 50px;
+}
+
+.newChat button {
+    margin: 7px;
+    text-align: justify;
+    font-size: 25px;
+    background: transparent;
+    border: none;
+    color: white;
+    width: 100%;
+}
+
+.historyList {
+    padding: 10px;
+}
+
+.list {
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+    height: 460px;
+    padding: 10px;
+}
+
+.detailList {
+    margin-bottom: 10px;
+    border-radius: 10px;
+}
+
+.chatting {
+    flex: 9;
+}
+
+.titleMain {
+    padding: 10px;
+    color: white;
+}
+
+.titleMain h1 {
+    padding: 5px;
+    border-bottom: 1px solid rgb(100, 100, 100);
+}
+
+.main {
+    min-height: calc(100vh - 14rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 1rem 5rem;
+}
+
+.chats {
+    overflow: hidden;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+    width: 100%;
+    max-width: 70rem;
+    height: calc(100vh - 20rem);
+}
+
+.chat {
+    margin: 1rem;
+    padding: 10px;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: flex-start;
+    text-align: justify;
+}
+
+.txt {
+    margin-left: 2rem;
+}
+
+.user {
+    padding-top: 20px;
+    background: rgb(83, 88, 247);
+    width: fit-content;
+    border-radius: 0.5rem;
+}
+
+.bott {
+    padding-top: 20px;
+    background: rgb(95, 95, 95);
+    width: fit-content;
+    border-radius: 0.5rem;
+}
+
+.bott .botFunction .speaker {
+    background: transparent;
+    border: none;
+    margin-left: 15px;
+}
+
+.bott .botFunction .translate {
+    background: transparent;
+    border: none;
+    margin-left: 15px;
+    margin-top: 10px;
+}
+
+.chatFooter {
+    margin-top: 3%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.inp {
+    padding: 0.1rem;
+    display: flex;
+    align-items: center;
+    border-radius: 0.5rem;
+    border: 4px solid rgb(100, 100, 100);
+    width: 70rem;
+}
+
+.inp>input {
+    width: calc(100% - 3rem);
+    outline: none;
+    padding: 1.25rem;
+    color: white;
+}
+
+.inp>input, .send {
+    background: transparent;
+    border: none;
+}
+
+.inp>input, .micro {
+    background: transparent;
+    border: none;
+}
