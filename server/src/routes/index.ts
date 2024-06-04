@@ -6,12 +6,14 @@ import { config } from "dotenv";
 const router = express.Router();
 config();
 
-const connection = mysql.createConnection({
-  host: process.env.DB_HOST,
+const dbConfig = {
+  host: process.env.MYSQL_HOST || process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   port: Number(process.env.DB_PORT),
-});
+};
+
+const connection = mysql.createConnection(dbConfig);
 
 //init tables
 const sqlInitTables = [
@@ -44,6 +46,7 @@ const sqlInitTables = [
   updated_at timestamp,
   deleted_at timestamp,
   PRIMARY KEY(uuid),
+  role char(36),
   CONSTRAINT fk_historys_logs_from_history FOREIGN KEY (history_uuid) REFERENCES historys(uuid)
   );`,
 ];
@@ -77,8 +80,8 @@ router.get("/user/:uuid", (req, res) => {
   );
 });
 
-// register
-router.post("/user/register", (req, res) => {
+// login
+router.post("/user/login", (req, res) => {
   let user: User = {
     uuid: uuidv4(),
     username: req.body.username,
@@ -88,16 +91,49 @@ router.post("/user/register", (req, res) => {
   console.log(user);
   // save user to database
   connection.query(
+    `SELECT * FROM users where username = ? and password = ?`,
+    [user.username, user.password],
+    (err, rows) => {
+      if (err) throw err;
+      res.send(rows);
+    }
+  );
+});
+
+// register
+router.post("/user/register", (req, res) => {
+  let user: User = {
+    uuid: uuidv4(),
+    username: req.body.username,
+    password: req.body.password,
+    created_at: new Date(),
+  };
+
+  let existUser = false;
+  connection.query(
+    `SELECT * FROM users where username = ? `,
+    [user.username],
+    (err, rows: any) => {
+      if (rows?.length > 0) {
+        existUser = true;
+        res.status(304).json({ error: "Exist user" });
+      }
+    }
+  );
+
+  // save user to database
+  connection.query(
     `INSERT INTO users (uuid, username, password, created_at) VALUES (?, ?, ?, ?)`,
     [user.uuid, user.username, user.password, user.created_at],
     (err, rows) => {
       if (err) throw err;
+      console.log(user);
+      res.send(user);
     }
   );
-  res.send(user);
 });
 
-// save conversation
+// save history
 router.post("/history/save", (req, res) => {
   let history = {
     uuid: uuidv4(),
@@ -115,12 +151,12 @@ router.post("/history/save", (req, res) => {
   res.send(history);
 });
 
-//get history by uuid
-router.get("/history/:uuid", (req, res) => {
-  const uuid = req.params.uuid;
+//get history by user_uuid
+router.get("/history/:user_uuid", (req, res) => {
+  const user_uuid = req.params.user_uuid;
   connection.query(
-    `SELECT * FROM historys WHERE uuid = ?`,
-    [uuid],
+    `SELECT * FROM historys WHERE user_uuid = ?`,
+    [user_uuid],
     (err, rows) => {
       if (err) throw err;
       res.send(rows);
@@ -128,24 +164,26 @@ router.get("/history/:uuid", (req, res) => {
   );
 });
 
-// save log
-router.post("/log/save", (req, res) => {
+// save conversation
+router.post("/conversation/save", (req, res) => {
   let log = {
     uuid: uuidv4(),
     number_sentence: req.body.number_sentence,
     sentences: req.body.sentences,
     history_uuid: req.body.history_uuid,
     created_at: new Date(),
+    role: "user",
   };
   // save log to database
   connection.query(
-    `INSERT INTO logs (uuid, number_sentence, sentences, history_uuid, created_at) VALUES (?, ?, ?, ?, ?)`,
+    `INSERT INTO logs (uuid, number_sentence, sentences, history_uuid, created_at, item_role) VALUES (?, ?, ?, ?, ?, ?)`,
     [
       log.uuid,
       log.number_sentence,
       log.sentences,
       log.history_uuid,
       log.created_at,
+      log.role,
     ],
     (err, rows) => {
       if (err) throw err;
@@ -154,13 +192,18 @@ router.post("/log/save", (req, res) => {
   res.send(log);
 });
 
-//get log by uuid
-router.get("/log/:uuid", (req, res) => {
-  const uuid = req.params.uuid;
-  connection.query(`SELECT * FROM logs WHERE uuid = ?`, [uuid], (err, rows) => {
-    if (err) throw err;
-    res.send(rows);
-  });
+//get log by history_uuid
+router.get("/conversation/:history_uuid", (req, res) => {
+  const history_uuid = req.params.history_uuid;
+  connection.query(
+    `SELECT * FROM logs WHERE history_uuid = ?`,
+    [history_uuid],
+    (err, rows) => {
+      if (err) throw err;
+      console.log(rows);
+      res.send(rows);
+    }
+  );
 });
 
 export default router;
