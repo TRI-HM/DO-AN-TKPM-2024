@@ -2,6 +2,7 @@ import express from "express";
 import mysql from "mysql2";
 import { v4 as uuidv4 } from "uuid";
 import { config } from "dotenv";
+import OpenAI from "openai";
 
 const router = express.Router();
 config();
@@ -12,6 +13,10 @@ const dbConfig = {
   password: process.env.DB_PASSWORD,
   port: Number(process.env.DB_PORT),
 };
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY, // "sk-proj-G8MVYno9aU62hd4XZWhzT3BlbkFJsnHUGRiaRM30CEyPAYBI", // process.env.OPENAI_API_KEY, // This is the default and can be omitted
+});
 
 const connection = mysql.createConnection(dbConfig);
 
@@ -165,31 +170,60 @@ router.get("/history/:user_uuid", (req, res) => {
 });
 
 // save conversation
-router.post("/conversation/save", (req, res) => {
-  let log = {
-    uuid: uuidv4(),
-    number_sentence: req.body.number_sentence,
-    sentences: req.body.sentences,
-    history_uuid: req.body.history_uuid,
-    created_at: new Date(),
-    role: "user",
-  };
-  // save log to database
-  connection.query(
-    `INSERT INTO logs (uuid, number_sentence, sentences, history_uuid, created_at, item_role) VALUES (?, ?, ?, ?, ?, ?)`,
-    [
-      log.uuid,
-      log.number_sentence,
-      log.sentences,
-      log.history_uuid,
-      log.created_at,
-      log.role,
-    ],
-    (err, rows) => {
-      if (err) throw err;
-    }
-  );
-  res.send(log);
+router.post("/conversation/save", async (req, res) => {
+  try {
+    let log = {
+      uuid: uuidv4(),
+      number_sentence: req.body.number_sentence,
+      sentences: req.body.sentences,
+      history_uuid: req.body.history_uuid,
+      created_at: new Date(),
+      role: "user",
+    };
+    // save log to database
+    connection.query(
+      `INSERT INTO logs (uuid, number_sentence, sentences, history_uuid, created_at, item_role) VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        log.uuid,
+        log.number_sentence,
+        log.sentences,
+        log.history_uuid,
+        log.created_at,
+        log.role,
+      ],
+      (err, rows) => {
+        if (err) throw err;
+      }
+    );
+
+    const chatCompletion = await openai.chat.completions.create({
+      messages: [{ role: "user", content: log.sentences }],
+      model: "gpt-3.5-turbo",
+    });
+
+    const openaimessage = chatCompletion.choices[0].message.content;
+    console.log("conversation/save", openaimessage);
+
+    await connection.query(
+      `INSERT INTO logs (uuid, number_sentence, sentences, history_uuid, created_at, item_role) VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        uuidv4(),
+        log.number_sentence,
+        openaimessage,
+        log.history_uuid,
+        new Date(),
+        "system",
+      ],
+      (err, rows) => {
+        if (err) throw err;
+        res.send({
+          message: openaimessage,
+        });
+      }
+    );
+  } catch (error) {
+    console.log("conversation/save", error);
+  }
 });
 
 //get log by history_uuid
