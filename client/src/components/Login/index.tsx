@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { Form, Button, Container, Row, Col } from "react-bootstrap";
+import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "../../providers/AuthContext";
 import { Navigate } from "react-router-dom";
-import { IoMdMail } from "react-icons/io";
 import { FaUser } from "react-icons/fa";
 import { RiLockPasswordFill } from "react-icons/ri";
+
 import "./login.css";
 
 const LoginSignupForm: React.FC = () => {
   const [loginUsername, setLoginUsername] = useState("user");
   const [loginPassword, setLoginPassword] = useState("password");
-  const { login, state } = useAuth();
+  const { login, register, state } = useAuth();
+  const inputUserNameRef = useRef<HTMLInputElement | null>(null);
+  const inputPasswordRef = useRef<HTMLInputElement | null>(null);
 
   const [action, setAction] = useState("");
   const registerLink = () => {
@@ -36,12 +37,13 @@ const LoginSignupForm: React.FC = () => {
     }
   };
 
-  const _handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLoginUsername(e.target.value);
-  };
-
-  const _handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLoginPassword(e.target.value);
+  const _handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await register(loginUsername, loginPassword);
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   };
 
   if (state.isAuthenticated) {
@@ -58,12 +60,24 @@ const LoginSignupForm: React.FC = () => {
 
             <div className="input-box">
               <FaUser className="icon" />
-              <input type="text" placeholder="Username" required />
+              <input
+                type="text"
+                defaultValue={"user"}
+                ref={inputUserNameRef}
+                placeholder="Username"
+                required
+              />
             </div>
 
             <div className="input-box">
               <RiLockPasswordFill className="icon" />
-              <input type="password" placeholder="Password" required />
+              <input
+                defaultValue={"password"}
+                type="password"
+                ref={inputPasswordRef}
+                placeholder="Password"
+                required
+              />
             </div>
 
             <div className="remember-forgot">
@@ -89,17 +103,12 @@ const LoginSignupForm: React.FC = () => {
 
         {/* Register Screen */}
         <div className="form-box register">
-          <form action="">
+          <form action="" onSubmit={_handleRegister}>
             <h1>Registration</h1>
 
             <div className="input-box">
               <FaUser className="icon" />
               <input type="text" placeholder="Username" required />
-            </div>
-
-            <div className="input-box">
-              <IoMdMail className="icon" />
-              <input type="email" placeholder="Email" required />
             </div>
 
             <div className="input-box">

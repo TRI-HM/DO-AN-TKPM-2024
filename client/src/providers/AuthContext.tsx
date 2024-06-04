@@ -74,6 +74,8 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const user = JSON.parse(storedUser);
+      console.log("storedUser load", user);
+
       dispatch({ type: "LOGIN_SUCCESS", payload: user });
     }
   }, []);
@@ -81,8 +83,8 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const login = async (username: string, password: string) => {
     try {
       const loggedInUser: any = await serviceLogin(username, password);
-      dispatch({ type: "LOGIN_SUCCESS", payload: loggedInUser });
-      localStorage.setItem("user", JSON.stringify(loggedInUser));
+      dispatch({ type: "LOGIN_SUCCESS", payload: loggedInUser[0] });
+      localStorage.setItem("user", JSON.stringify(loggedInUser[0]));
     } catch (error) {
       console.error("Login failed:", error);
       dispatch({ type: "LOGIN_FAILURE" });
@@ -92,8 +94,9 @@ const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   const register = async (username: string, password: string) => {
     try {
+      debugger;
       const loggedInUser: any = await serviceRegister(username, password);
-      dispatch({ type: "REGISTER_SUCCESS", payload: loggedInUser });
+      dispatch({ type: "LOGIN_SUCCESS", payload: loggedInUser });
       localStorage.setItem("user", JSON.stringify(loggedInUser));
     } catch (error) {
       console.error("Login failed:", error);
