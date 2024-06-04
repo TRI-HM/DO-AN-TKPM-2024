@@ -8,3 +8,9 @@ export const formatDateTime = (date: Date) => {
   console.log(formattedDate);
   return formattedDate;
 };
+
+export const sortByCreatedAtDesc = (a: any, b: any) => {
+  if (a.created_at > b.created_at) return -1;
+  if (a.created_at < b.created_at) return 1;
+  return 0;
+};

@@ -13,8 +13,8 @@ const BotConversation = ({ content }: any) => {
       <RiRobot2Fill size={30} />
       <p className="txt">{content}</p>
       <div className="botFunction">
-        <ButtonSpeaker content={content} />
-        <ButtonTranslate content={content} />
+        <ButtonSpeaker text={content} />
+        <ButtonTranslate text={content} />
       </div>
     </div>
   );

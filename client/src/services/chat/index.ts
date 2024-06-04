@@ -1,7 +1,6 @@
-import { create } from "domain";
 import { apiCaller } from "../../apis/apiCaller";
 import { formatDateTime } from "../../utils";
-import { SubmitConversation, GetConversationHistory } from "../../types/Chat";
+import { SubmitConversation } from "../../types/Chat";
 
 const BASE_URL = process.env.REACT_APP_SERVER_BASE_URL;
 
@@ -57,13 +56,19 @@ export const getConversationByHistoryId = async (
     );
     if (!response) return { conversations: [] };
     return {
-      conversations: response.map((item: any) => {
-        return {
-          sender: item.sender,
-          content: item.sentences,
-          role: item.item_role,
-        };
-      }),
+      conversations: response
+        .sort((a: any, b: any) => {
+          if (a.created_at > b.created_at) return 1;
+          if (a.created_at < b.created_at) return -1;
+          return 0;
+        })
+        .map((item: any) => {
+          return {
+            sender: item.sender,
+            content: item.sentences,
+            role: item.item_role,
+          };
+        }),
     };
   } catch (error) {
     console.error("Error getLogs:", error);

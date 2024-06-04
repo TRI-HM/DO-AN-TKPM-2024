@@ -190,3 +190,7 @@
   background: transparent;
   border: none;
 }
+
+.inp > button.send {
+  width: auto;
+}

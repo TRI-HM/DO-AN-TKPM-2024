@@ -1,44 +1,29 @@
 import React, { useState, useEffect, useRef, Fragment } from "react";
-import {
-  Col,
-  Container,
-  ListGroup,
-  ListGroupItem,
-  Row,
-  Nav,
-} from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
-import "./chatui.css";
 import { IoSend } from "react-icons/io5";
-import { FaUser } from "react-icons/fa";
-import { RiRobot2Fill } from "react-icons/ri";
 import { FaMicrophone } from "react-icons/fa6";
-import { HiSpeakerWave } from "react-icons/hi2";
 import { IoMdAddCircle } from "react-icons/io";
 import { RiLogoutBoxRFill } from "react-icons/ri";
-import { SiGoogletranslate } from "react-icons/si";
 import { useAuth } from "../../providers/AuthContext";
-
-import ButtonSpeaker from "../ButtonSpeaker";
+import { saveHistories } from "../../services/chat";
+import { SubmitConversation } from "../../types/Chat";
+import { sendConversation } from "../../services/chat";
+import { ListGroup, ListGroupItem } from "react-bootstrap";
+import { getHistories, getConversationByHistoryId } from "../../services/chat";
 
 import UserConversation from "./Conversation/User";
 import BotConversation from "./Conversation/Bot";
 
-import { getHistories, getConversationByHistoryId } from "../../services/chat";
-import ButtonSpeechToText from "../ButtonTextToSpeech";
-import { apiCaller } from "../../apis/apiCaller";
-import { saveHistories } from "../../services/chat";
+import "./chatui.css";
 
-import { formatDateTime } from "../../utils";
-
-import { SubmitConversation } from "../../types/Chat";
-import { sendConversation } from "../../services/chat";
 interface Message {
   sender: string;
   content: string;
 }
 
 interface ChatProps {}
+
+const SpeechRecognition: any =
+  (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
 const Chat: React.FC<ChatProps> = () => {
   const { state, logout: serviceLoggout } = useAuth();
@@ -50,6 +35,55 @@ const Chat: React.FC<ChatProps> = () => {
 
   const [activeDate, setActiveDate] = useState<string>("");
 
+  ////
+  const [isRecording, setIsRecording] = useState(false);
+  const [transcription, setTranscription] = useState("");
+  const [recognition, setRecognition] = useState<any>(null);
+
+  useEffect(() => {
+    if (SpeechRecognition) {
+      const recognitionInstance = new SpeechRecognition();
+      recognitionInstance.continuous = true;
+      recognitionInstance.interimResults = true;
+      recognitionInstance.lang = "en-US";
+
+      recognitionInstance.onresult = (event: any) => {
+        let interimTranscript = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            setTranscription((prev) => prev + transcript + " ");
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+        setTranscription((prev) => prev + interimTranscript);
+      };
+
+      recognitionInstance.onerror = (event: any) => {
+        console.error("Speech recognition error", event);
+      };
+
+      setRecognition(recognitionInstance);
+    } else {
+      alert("Sorry, your browser does not support Speech Recognition.");
+    }
+  }, []);
+
+  const startRecording = () => {
+    if (recognition) {
+      recognition.start();
+      setIsRecording(true);
+    }
+  };
+
+  const stopRecording = () => {
+    if (recognition) {
+      recognition.stop();
+      setIsRecording(false);
+    }
+  };
+
   useEffect(() => {
     _handleFetchHistories({ uuid: state.user?.uuid });
   }, []);
@@ -59,6 +93,11 @@ const Chat: React.FC<ChatProps> = () => {
       _handleFetchConversation(activeHistory.history_uuid || "");
     }
   }, [activeHistory.history_uuid, activeDate]);
+
+  useEffect(() => {
+    let object: any = document.getElementsByClassName("chats")[0];
+    object.scrollTop = object.scrollHeight;
+  }, [conversation]);
 
   const _handleFetchHistories = async ({ uuid }: any) => {
     try {
@@ -100,7 +139,8 @@ const Chat: React.FC<ChatProps> = () => {
     };
   };
 
-  const _handleSendText = async () => {
+  const _handleSendText = async (event: any) => {
+    event.preventDefault();
     console.log("_handleSendText", inputRef.current.value);
     try {
       const submitConversation: SubmitConversation = {
@@ -109,6 +149,8 @@ const Chat: React.FC<ChatProps> = () => {
         history_uuid: activeHistory.history_uuid,
       };
       const response = await sendConversation(submitConversation);
+      await _handleFetchConversation(activeHistory.history_uuid);
+      inputRef.current.value = "";
       console.log(response);
     } catch (error) {
       console.error("Error _handleSendText:", error);
@@ -118,39 +160,6 @@ const Chat: React.FC<ChatProps> = () => {
   const handleUserInput = (text: string) => {
     try {
     } catch (error) {}
-    // Send user text to OpenAI API for processing
-    // fetch("https://api.openai.com/v1/completions", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Authorization: `Bearer ${key}`, // Replace with your API key
-    //   },
-    //   body: JSON.stringify({
-    //     model: "text-davinci-003", // Adjust model as needed
-    //     prompt: `You: ${text}`,
-    //     max_tokens: 1024, // Adjust maximum response length
-    //     n: 1,
-    //     stop: null,
-    //     temperature: 0.7, // Adjust temperature for response creativity
-    //   }),
-    // })
-    //   .then((response) => response.json())
-    //   .then((data) => {
-    //     const responseText = data.choices[0].text.trim();
-    //     setConversation((prev) => [
-    //       ...prev,
-    //       { sender: "System", content: responseText },
-    //     ]);
-    //     // Integrate a text-to-speech library (e.g., Web Speech API or third-party SDK)
-    //     // Here's a simplified example using Web Speech API (requires additional setup):
-    //     const synth = window.speechSynthesis;
-    //     if (synth.speaking) {
-    //       synth.cancel();
-    //     }
-    //     const utterance = new SpeechSynthesisUtterance(responseText);
-    //     synth.speak(utterance);
-    //   })
-    //   .catch((error) => console.error(error));
   };
 
   const _handleCreateHistory = async () => {
@@ -223,19 +232,26 @@ const Chat: React.FC<ChatProps> = () => {
           </div>
 
           <div className="chatFooter">
-            <div className="inp">
+            <form className="inp" onSubmit={_handleSendText}>
               <input
                 type="text"
                 ref={inputRef}
                 placeholder="Ask me anything...."
                 name=""
                 id=""
+                value={transcription}
               />
-              {/* <ButtonSpeechToText />| */}
+
+              <button
+                className="micro"
+                onClick={isRecording ? stopRecording : startRecording}
+              >
+                <FaMicrophone size={30} color="white" />
+              </button>
               <button className="send" onClick={_handleSendText}>
                 <IoSend size={30} color="white" />
               </button>
-            </div>
+            </form>
           </div>
         </div>
       </div>
