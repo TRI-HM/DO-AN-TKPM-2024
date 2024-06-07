@@ -107,3 +107,9 @@ export const sendConversation = async (conversation: SubmitConversation) => {
   //
   return await apiCaller(`${BASE_URL}/conversation/save`, "POST", conversation);
 };
+
+export const translate = async (text: string) => {
+  return await apiCaller(`${BASE_URL}/conversation/translate`, "POST", {
+    text,
+  });
+};

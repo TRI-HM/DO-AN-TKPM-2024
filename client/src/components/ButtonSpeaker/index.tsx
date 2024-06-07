@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { HiSpeakerWave } from "react-icons/hi2";
+import "./index.css";
 
 const ButtonSpeaker = ({ text }: any) => {
-  const [isPaused, setIsPaused] = useState(false);
+  const [isPaused, setIsPaused] = useState(true);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [utterance, setUtterance] = useState<any>(null);
 
   const [voice, setVoice] = useState<any>(null);
@@ -23,7 +25,8 @@ const ButtonSpeaker = ({ text }: any) => {
     };
   }, [text]);
 
-  const handlePlay = () => {
+  const _handlePlay = () => {
+    setIsPlaying(true);
     let synth = window.speechSynthesis;
 
     // if (isPaused) {
@@ -59,6 +62,7 @@ const ButtonSpeaker = ({ text }: any) => {
         if (index === chunks.length - 1) {
           utterance.onend = () => {
             console.log("Finished speaking all chunks");
+            setIsPlaying(false);
           };
         }
 
@@ -71,8 +75,6 @@ const ButtonSpeaker = ({ text }: any) => {
     } else {
       alert("Sorry, your browser doesn't support text to speech.");
     }
-
-    setIsPaused(false);
   };
 
   const handlePause = () => {
@@ -159,15 +161,12 @@ const ButtonSpeaker = ({ text }: any) => {
 
         <br />
       </div>
-      {isPaused ? (
-        <button className="speaker" onClick={handleStop}>
-          <HiSpeakerWave size={30} color={"red"} />
-        </button>
-      ) : (
-        <button className="speaker" onClick={handlePlay}>
-          <HiSpeakerWave size={30} color={"white"} />
-        </button>
-      )}
+      <button
+        className={`speaker ${!isPlaying ? "" : "pointer"}`}
+        onClick={_handlePlay}
+      >
+        <HiSpeakerWave size={30} color={"white"} />
+      </button>
     </div>
   );
 };

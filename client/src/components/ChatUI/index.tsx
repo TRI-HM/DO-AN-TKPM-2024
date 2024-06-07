@@ -7,7 +7,7 @@ import { useAuth } from "../../providers/AuthContext";
 import { saveHistories } from "../../services/chat";
 import { SubmitConversation } from "../../types/Chat";
 import { sendConversation } from "../../services/chat";
-import { ListGroup, ListGroupItem } from "react-bootstrap";
+import { ListGroup, ListGroupItem, Spinner } from "react-bootstrap";
 import { getHistories, getConversationByHistoryId } from "../../services/chat";
 
 import UserConversation from "./Conversation/User";
@@ -29,57 +29,65 @@ const Chat: React.FC<ChatProps> = () => {
   const { state, logout: serviceLoggout } = useAuth();
   const [histories, setHistories] = useState<any[]>([]);
   const [conversation, setConversation] = useState<Message[]>([]);
+  const [activeHistory, setActiveHistory] = useState<any>({});
+  const [activeDate, setActiveDate] = useState<string>("");
+  const [isRecording, setIsRecording] = useState<any>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const recognitionRef = useRef<any>(null);
   const inputRef: any = useRef<HTMLInputElement>(null);
 
-  const [activeHistory, setActiveHistory] = useState<any>({});
-
-  const [activeDate, setActiveDate] = useState<string>("");
-
-  ////
-  const [isRecording, setIsRecording] = useState(false);
-  const [transcription, setTranscription] = useState("");
-  const [recognition, setRecognition] = useState<any>(null);
-
   useEffect(() => {
-    if (SpeechRecognition) {
-      const recognitionInstance = new SpeechRecognition();
-      recognitionInstance.continuous = true;
-      recognitionInstance.interimResults = true;
-      recognitionInstance.lang = "en-US";
+    _handleInitSpeechRecognition();
+  }, []); // Adding transcription as a dependency
 
-      recognitionInstance.onresult = (event: any) => {
-        let interimTranscript = "";
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            setTranscription((prev) => prev + transcript + " ");
-          } else {
-            interimTranscript += transcript;
-          }
-        }
-        setTranscription((prev) => prev + interimTranscript);
-      };
-
-      recognitionInstance.onerror = (event: any) => {
-        console.error("Speech recognition error", event);
-      };
-
-      setRecognition(recognitionInstance);
-    } else {
-      alert("Sorry, your browser does not support Speech Recognition.");
+  const _handleInitSpeechRecognition = () => {
+    // Check if the browser supports SpeechRecognition
+    if (!SpeechRecognition) {
+      alert(
+        "Your browser does not support Speech Recognition. Please use a supported browser."
+      );
+      return;
     }
-  }, []);
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+
+    recognition.onresult = (event: any) => {
+      console.log("recognition.onresult", event.results);
+      let interimTranscript = "";
+
+      const results: any = event.results;
+      const resultLength = results.length;
+
+      if (resultLength !== 0) {
+        for (let i = 0; i < resultLength; i++) {
+          const transcript = results[i][0].transcript;
+          interimTranscript += transcript;
+        }
+      }
+
+      console.log("interimTranscript", interimTranscript);
+
+      inputRef.current.value = interimTranscript;
+    };
+
+    recognitionRef.current = recognition;
+  };
 
   const startRecording = () => {
-    if (recognition) {
-      recognition.start();
+    if (recognitionRef.current) {
+      recognitionRef.current.start();
       setIsRecording(true);
     }
   };
 
   const stopRecording = () => {
-    if (recognition) {
-      recognition.stop();
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+
       setIsRecording(false);
     }
   };
@@ -111,38 +119,17 @@ const Chat: React.FC<ChatProps> = () => {
   const _handleFetchConversation = async (history_uuid: string) => {
     try {
       const data: any = await getConversationByHistoryId(history_uuid);
-      console.log(
-        "data?.conversations_handleFetchConversation",
-        data?.conversations
-      );
       setConversation(data?.conversations);
     } catch (error) {
       console.error("Error _handleFetchHistories:", error);
     }
   };
 
-  // Integrate a speech recognition library (e.g., Web Speech API or third-party SDK)
-  // Here's a simplified example using Web Speech API (requires additional setup):
-  const handleSpeechInput = () => {
-    if (!(window as any).SpeechRecognition) {
-      console.error("Speech Recognition is not supported");
-      return;
-    }
-
-    const recognition = new (window as any).SpeechRecognition();
-    recognition.start();
-
-    recognition.onresult = (event: any) => {
-      const text = event.result[0][0].transcript;
-      setConversation((prev) => [...prev, { sender: "User", content: text }]);
-      handleUserInput(text); // Send user input for processing
-    };
-  };
-
   const _handleSendText = async (event: any) => {
     event.preventDefault();
     console.log("_handleSendText", inputRef.current.value);
     try {
+      setIsLoading(true);
       const submitConversation: SubmitConversation = {
         number_sentence: "123",
         sentences: inputRef.current.value,
@@ -154,16 +141,14 @@ const Chat: React.FC<ChatProps> = () => {
       console.log(response);
     } catch (error) {
       console.error("Error _handleSendText:", error);
+    } finally {
+      setIsLoading(false);
     }
-  };
-
-  const handleUserInput = (text: string) => {
-    try {
-    } catch (error) {}
   };
 
   const _handleCreateHistory = async () => {
     try {
+      if (_handleDisabledCreateNewHistory()) return;
       const response: any = await saveHistories({
         user_uuid: state?.user?.uuid,
       });
@@ -177,6 +162,23 @@ const Chat: React.FC<ChatProps> = () => {
     setActiveDate(history.createdAt);
   };
 
+  const _handleDisabledCreateNewHistory = () => {
+    const today = new Date();
+    const date =
+      today.getFullYear() +
+      "-" +
+      (today.getMonth() + 1) +
+      "-" +
+      today.getDate();
+    const exist = histories.find((history) => history.createdAt === date);
+    return Boolean(!exist);
+  };
+
+  console.log(
+    "_handleDisabledCreateNewHistory",
+    _handleDisabledCreateNewHistory()
+  );
+
   return (
     <div className="App">
       <div className="sidebar">
@@ -186,7 +188,12 @@ const Chat: React.FC<ChatProps> = () => {
         <div className="top">
           <div className="newChat">
             <IoMdAddCircle size={30} color="white" />
-            <button onClick={_handleCreateHistory}>Today</button>
+            <button
+              disabled={_handleDisabledCreateNewHistory()}
+              onClick={_handleCreateHistory}
+            >
+              Today
+            </button>
           </div>
           <div className="historyList">
             <ListGroup className="list">
@@ -232,26 +239,31 @@ const Chat: React.FC<ChatProps> = () => {
           </div>
 
           <div className="chatFooter">
-            <form className="inp" onSubmit={_handleSendText}>
+            <div className="inp">
               <input
                 type="text"
                 ref={inputRef}
                 placeholder="Ask me anything...."
-                name=""
-                id=""
-                value={transcription}
               />
-
               <button
+                style={{ width: "auto" }}
                 className="micro"
                 onClick={isRecording ? stopRecording : startRecording}
               >
-                <FaMicrophone size={30} color="white" />
+                {isRecording ? (
+                  <FaMicrophone size={30} color="blue" />
+                ) : (
+                  <FaMicrophone size={30} color="white" />
+                )}
               </button>
               <button className="send" onClick={_handleSendText}>
-                <IoSend size={30} color="white" />
+                {isLoading ? (
+                  <Spinner animation="border" variant="light" size="sm" />
+                ) : (
+                  <IoSend size={30} color="white" />
+                )}
               </button>
-            </form>
+            </div>
           </div>
         </div>
       </div>
