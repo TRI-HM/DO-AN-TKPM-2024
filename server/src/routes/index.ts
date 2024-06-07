@@ -51,7 +51,7 @@ const sqlInitTables = [
   updated_at timestamp,
   deleted_at timestamp,
   PRIMARY KEY(uuid),
-  role char(36),
+  item_role char(36),
   CONSTRAINT fk_historys_logs_from_history FOREIGN KEY (history_uuid) REFERENCES historys(uuid)
   );`,
 ];

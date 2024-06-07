@@ -14,6 +14,7 @@ import UserConversation from "./Conversation/User";
 import BotConversation from "./Conversation/Bot";
 
 import "./chatui.css";
+import Header from "../Header";
 
 interface Message {
   sender: string;
@@ -148,7 +149,7 @@ const Chat: React.FC<ChatProps> = () => {
 
   const _handleCreateHistory = async () => {
     try {
-      if (_handleDisabledCreateNewHistory()) return;
+      // if (_handleDisabledCreateNewHistory()) return;
       const response: any = await saveHistories({
         user_uuid: state?.user?.uuid,
       });
@@ -180,94 +181,93 @@ const Chat: React.FC<ChatProps> = () => {
   );
 
   return (
-    <div className="App">
-      <div className="sidebar">
-        <div className="titleSideBar">
-          <h1>History</h1>
-        </div>
-        <div className="top">
-          <div className="newChat">
-            <IoMdAddCircle size={30} color="white" />
-            <button
-              disabled={_handleDisabledCreateNewHistory()}
-              onClick={_handleCreateHistory}
-            >
-              Today
-            </button>
-          </div>
-          <div className="historyList">
-            <ListGroup className="list">
-              {histories.map((history, _) => (
-                <ListGroupItem
-                  key={history.uuid}
-                  active={history.createdAt === activeDate}
-                  className="detailList"
-                  onClick={() => _handleActivateHistory(history)}
-                >
-                  {history?.createdAt}
-                </ListGroupItem>
-              ))}
-            </ListGroup>
-          </div>
-        </div>
+    <>
+      <Header />
 
-        <div className="bottom">
-          <div className="logout">
-            <RiLogoutBoxRFill size={30} color="white" />
-            <button onClick={serviceLoggout}>Logout</button>
+      <div className="App">
+        <div className="sidebar">
+          <div className="titleSideBar">
+            <h1>History</h1>
           </div>
-        </div>
-      </div>
-      <div className="chatting">
-        <div className="titleMain">
-          <h1>Chatting</h1>
-        </div>
-        <div className="main">
-          <div className="chats">
-            {
-              // Render chat messages here
-              conversation.map((msg: any, _) => (
-                <Fragment key={msg?.uuid}>
-                  {msg?.role === "user" ? (
-                    <UserConversation content={msg.content} />
-                  ) : (
-                    <BotConversation content={msg.content} />
-                  )}
-                </Fragment>
-              ))
-            }
-          </div>
-
-          <div className="chatFooter">
-            <div className="inp">
-              <input
-                type="text"
-                ref={inputRef}
-                placeholder="Ask me anything...."
-              />
+          <div className="top">
+            <div className="newChat">
+              <IoMdAddCircle size={30} color="white" />
               <button
-                style={{ width: "auto" }}
-                className="micro"
-                onClick={isRecording ? stopRecording : startRecording}
+                // disabled={_handleDisabledCreateNewHistory()}
+                onClick={_handleCreateHistory}
               >
-                {isRecording ? (
-                  <FaMicrophone size={30} color="blue" />
-                ) : (
-                  <FaMicrophone size={30} color="white" />
-                )}
+                Today
               </button>
-              <button className="send" onClick={_handleSendText}>
-                {isLoading ? (
-                  <Spinner animation="border" variant="light" size="sm" />
-                ) : (
-                  <IoSend size={30} color="white" />
-                )}
-              </button>
+            </div>
+            <div className="historyList">
+              <ListGroup className="list">
+                {histories.map((history, _) => (
+                  <ListGroupItem
+                    key={history.uuid}
+                    active={history.createdAt === activeDate}
+                    className="detailList"
+                    onClick={() => _handleActivateHistory(history)}
+                  >
+                    {history?.createdAt}
+                  </ListGroupItem>
+                ))}
+              </ListGroup>
+            </div>
+          </div>
+
+          {/* <div className="bottom"></div> */}
+        </div>
+        <div className="chatting">
+          <div className="titleMain">
+            <h1>Chatting</h1>
+          </div>
+          <div className="main">
+            <div className="chats">
+              {
+                // Render chat messages here
+                conversation.map((msg: any, _) => (
+                  <Fragment key={msg?.uuid}>
+                    {msg?.role === "user" ? (
+                      <UserConversation content={msg.content} />
+                    ) : (
+                      <BotConversation content={msg.content} />
+                    )}
+                  </Fragment>
+                ))
+              }
+            </div>
+
+            <div className="chatFooter">
+              <div className="inp">
+                <input
+                  type="text"
+                  ref={inputRef}
+                  placeholder="Ask me anything...."
+                />
+                <button
+                  style={{ width: "auto" }}
+                  className="micro"
+                  onClick={isRecording ? stopRecording : startRecording}
+                >
+                  {isRecording ? (
+                    <FaMicrophone size={30} color="blue" />
+                  ) : (
+                    <FaMicrophone size={30} color="white" />
+                  )}
+                </button>
+                <button className="send" onClick={_handleSendText}>
+                  {isLoading ? (
+                    <Spinner animation="border" variant="light" size="sm" />
+                  ) : (
+                    <IoSend size={30} color="white" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
