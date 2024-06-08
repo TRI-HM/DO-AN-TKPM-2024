@@ -21,12 +21,12 @@ services:
     environment:
       MYSQL_HOST: "mysql" # Set a strong password for MySQL root user
 
-  # client:
-  #   build: ./client # Path to your server folder with Dockerfile
-  #   ports:
-  #     - "3000:3000" # Map port 8007 of the container to port 8007 of your host
-  #   networks:
-  #     - doantkpm
+  client:
+    build: ./client # Path to your server folder with Dockerfile
+    ports:
+      - "3000:3000" # Map port 8007 of the container to port 8007 of your host
+    networks:
+      - doantkpm
 networks:
   doantkpm:
     external: true

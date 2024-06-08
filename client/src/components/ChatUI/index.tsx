@@ -153,6 +153,7 @@ const Chat: React.FC<ChatProps> = () => {
       const response: any = await saveHistories({
         user_uuid: state?.user?.uuid,
       });
+      await _handleFetchHistories({ uuid: state?.user?.uuid });
     } catch (error) {
       console.error("Error _handleCreateHistory:", error);
     }
