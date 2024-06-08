@@ -10,9 +10,17 @@ Web for user learn English by text conventions with AI
 1. Folder Documnet
 2. Source web reactjs USE OPENAI API
 
-Docker // Nhờ BE tạo DB khi connect vào MYSQL khi start server app. (hiện tại khi connect vào msql nếu ko có db sẵn sẽ gây lỗi)
+HƯỚNG DẪN CÀI ĐẶT
 
-1. docker compose up -d
-2. Mở Mysql Workbench, chạy file create database "mysql/create_db.sql"
-3. docker compose down
-4. docker compose up -d
+1. YÊU CẦU HỆ THỐNG:
+   CÁCH 1: CÀI ĐẶT DOCKER
+   CÁCH 2: CÀI ĐẶT NODEJS, MYSQLSERVER.
+2. HƯỚNG DẪN CHẠY
+   1. CÁCH 1:
+      1. MỞ POWERSHELL CHẠY COMMANT: DOCKER COMPOSE UP -D
+      2. Truy cập đường dẫn đến web application bằng trình duyệt chạy ở đường dẫn "localhost:3000"
+   2. CÁCH 2:
+      1. START SERVER Database : MYSQL.
+      2. START SERVER App : bằng cách mở commandline theo đường dẫn "doan/server": "npm run start".
+      3. START SERVER Web Application : bằng cách mở commandline theo đường dẫn "doan/client" với command "npm run start".
+      4. Truy cập đường dẫn đến web application bằng trình duyệt chạy ở đường dẫn "localhost:3000"

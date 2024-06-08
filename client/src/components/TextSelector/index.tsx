@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
+
+import { translate } from "../../services/chat";
 
 const TextSelector: React.FC = () => {
   const [selectedText, setSelectedText] = useState<string | null>(null);
@@ -9,36 +10,8 @@ const TextSelector: React.FC = () => {
     const selectedText = window.getSelection()?.toString().trim();
     if (selectedText) {
       setSelectedText(selectedText);
-      const translatedText = await fetchTranslation(selectedText);
+      const translatedText = await translate(selectedText);
       setTranslation(translatedText);
-    }
-  };
-
-  const fetchTranslation = async (text: string): Promise<string> => {
-    const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
-    console.log("fetchTranslation", apiKey);
-    if (!apiKey) {
-      console.error("OpenAI API key is not defined");
-      return "Translation error";
-    }
-
-    try {
-      const response = await axios.post(
-        "https://api.openai.com/v1/engines/davinci-codex/completions",
-        {
-          prompt: `Translate the following text to Spanish: "${text}"`,
-          max_tokens: 60,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-          },
-        }
-      );
-      return response.data.choices[0].text.trim();
-    } catch (error) {
-      console.error("Error fetching translation:", error);
-      return "Translation error";
     }
   };
 
