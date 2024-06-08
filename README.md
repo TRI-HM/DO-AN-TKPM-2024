@@ -12,15 +12,15 @@ Web for user learn English by text conventions with AI
 
 HƯỚNG DẪN CÀI ĐẶT
 
-1. YÊU CẦU HỆ THỐNG:
-   CÁCH 1: CÀI ĐẶT DOCKER
-   CÁCH 2: CÀI ĐẶT NODEJS, MYSQLSERVER.
-2. HƯỚNG DẪN CHẠY
-   1. CÁCH 1:
-      1. MỞ POWERSHELL CHẠY COMMANT: DOCKER COMPOSE UP -D
-      2. Truy cập đường dẫn đến web application bằng trình duyệt chạy ở đường dẫn "localhost:3000"
-   2. CÁCH 2:
-      1. START SERVER Database : MYSQL.
-      2. START SERVER App : bằng cách mở commandline theo đường dẫn "doan/server": "npm run start".
-      3. START SERVER Web Application : bằng cách mở commandline theo đường dẫn "doan/client" với command "npm run start".
-      4. Truy cập đường dẫn đến web application bằng trình duyệt chạy ở đường dẫn "localhost:3000"
+1.  YÊU CẦU HỆ THỐNG:
+    CÁCH 1: CÀI ĐẶT DOCKER
+    CÁCH 2: CÀI ĐẶT NODEJS, MYSQLSERVER.
+2.  HƯỚNG DẪN CHẠY
+    1.  CÁCH 1:
+        1. MỞ POWERSHELL CHẠY COMMAND: DOCKER COMPOSE UP -D
+        2. Truy cập đường dẫn đến web application bằng trình duyệt chạy ở đường dẫn "localhost:3000"
+    1.  CÁCH 2:
+        1. START SERVER Database : MYSQL.
+        2. START SERVER App : bằng cách mở commandline theo đường dẫn "doan/server": "npm run start".
+        3. START SERVER Web Application : bằng cách mở commandline theo đường dẫn "doan/client" với command "npm run start".
+        4. Truy cập đường dẫn đến web application bằng trình duyệt chạy ở đường dẫn "localhost:3000"
